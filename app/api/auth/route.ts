@@ -83,6 +83,13 @@ export async function POST(request: Request) {
                 return NextResponse.json({ success: false, error: "Invalid password" }, { status: 401 });
             }
 
+            // Increment login count
+            const currentCount = student.login_count || 0;
+            await supabase
+                .from('students')
+                .update({ login_count: currentCount + 1 })
+                .eq('id', student.id);
+
             const token = jwt.sign({ id: student.id, role: 'student', name: student.name }, JWT_SECRET, { expiresIn: '7d' });
             
             const response = NextResponse.json({
